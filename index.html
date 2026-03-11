@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生理健康管理中心 - BMI 計算機</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .status-low { color: #3b82f6; }
+        .status-normal { color: #10b981; }
+        .status-warning { color: #f59e0b; }
+        .status-danger { color: #ef4444; }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- 標題區 -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">生理健康管理中心</h1>
+            <p class="text-gray-600">追蹤您的體態指標，開啟健康生活的第一步</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- 左側：BMI 計算機 -->
+            <div class="glass-card p-8">
+                <div class="flex items-center mb-6">
+                    <div class="p-3 bg-indigo-100 rounded-lg mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-800">BMI 指數計算</h2>
+                </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">身高 (公分)</label>
+                        <input type="number" id="height" placeholder="例如: 175" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">體重 (公斤)</label>
+                        <input type="number" id="weight" placeholder="例如: 70" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition">
+                    </div>
+                    <button onclick="calculateBMI()" class="w-full gradient-bg text-white font-bold py-3 rounded-xl hover:opacity-90 transition transform active:scale-95 shadow-lg">
+                        立即計算
+                    </button>
+                </div>
+
+                <!-- 計算結果顯示區 -->
+                <div id="resultCard" class="mt-8 p-6 rounded-2xl bg-gray-50 border border-gray-100 hidden">
+                    <div class="text-center">
+                        <p class="text-gray-500 text-sm mb-1">您的 BMI 指數為</p>
+                        <h3 id="bmiValue" class="text-4xl font-black mb-2">22.5</h3>
+                        <p id="bmiStatus" class="text-lg font-bold mb-4">健康體重</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                            <div id="statusProgressBar" class="h-2 rounded-full transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：健康知識與建議 -->
+            <div class="space-y-6">
+                <div class="glass-card p-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">BMI 標準範圍</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex justify-between items-center pb-2 border-bottom border-gray-100">
+                            <span class="text-gray-600">體重過輕</span>
+                            <span class="font-medium text-blue-500">BMI < 18.5</span>
+                        </li>
+                        <li class="flex justify-between items-center pb-2 border-bottom border-gray-100">
+                            <span class="text-gray-600">健康體位</span>
+                            <span class="font-medium text-green-500">18.5 ≤ BMI < 24</span>
+                        </li>
+                        <li class="flex justify-between items-center pb-2 border-bottom border-gray-100">
+                            <span class="text-gray-600">體重過重</span>
+                            <span class="font-medium text-yellow-500">24 ≤ BMI < 27</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span class="text-gray-600">肥胖</span>
+                            <span class="font-medium text-red-500">BMI ≥ 27</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="adviceCard" class="glass-card p-8 min-h-[200px] flex flex-col justify-center bg-indigo-50 border-indigo-100 border">
+                    <h3 class="text-xl font-bold text-indigo-900 mb-2">健康小叮嚀</h3>
+                    <p id="adviceText" class="text-indigo-800 leading-relaxed">
+                        請在左側輸入您的身高體重，我們將為您提供專屬的健康建議。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部免責聲明 -->
+        <footer class="mt-12 text-center text-gray-400 text-xs">
+            <p>※ 本工具僅供參考，生理健康狀況請諮詢專業醫師意見。</p>
+        </footer>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            const heightInput = document.getElementById('height').value;
+            const weightInput = document.getElementById('weight').value;
+            const resultCard = document.getElementById('resultCard');
+            const bmiValueDisplay = document.getElementById('bmiValue');
+            const bmiStatusDisplay = document.getElementById('bmiStatus');
+            const progressBar = document.getElementById('statusProgressBar');
+            const adviceText = document.getElementById('adviceText');
+
+            if (!heightInput || !weightInput || heightInput <= 0 || weightInput <= 0) {
+                alert("請輸入正確的身高與體重數值！");
+                return;
+            }
+
+            const heightInMeters = heightInput / 100;
+            const bmi = (weightInput / (heightInMeters * heightInMeters)).toFixed(1);
+
+            resultCard.classList.remove('hidden');
+            bmiValueDisplay.innerText = bmi;
+
+            let status = "";
+            let colorClass = "";
+            let progressWidth = "0%";
+            let advice = "";
+
+            if (bmi < 18.5) {
+                status = "體重過輕";
+                colorClass = "text-blue-500";
+                progressWidth = "25%";
+                progressBar.className = "h-2 rounded-full transition-all duration-500 bg-blue-500";
+                advice = "您的體重偏輕，建議均衡攝取營養，並搭配適量的重量訓練來增加肌肉量。如有吸收不良問題，請諮詢營養師。";
+            } else if (bmi >= 18.5 && bmi < 24) {
+                status = "正常範圍";
+                colorClass = "text-green-500";
+                progressWidth = "50%";
+                progressBar.className = "h-2 rounded-full transition-all duration-500 bg-green-500";
+                advice = "恭喜您！您的體態非常理想。請繼續保持規律運動與良好的飲食習慣，維持健康生活。";
+            } else if (bmi >= 24 && bmi < 27) {
+                status = "過重";
+                colorClass = "text-yellow-500";
+                progressWidth = "75%";
+                progressBar.className = "h-2 rounded-full transition-all duration-500 bg-yellow-500";
+                advice = "您的體重稍有過重傾向，建議注意糖分攝取並增加每日活動量，目標是將 BMI 降回健康區間。";
+            } else {
+                status = "肥胖";
+                colorClass = "text-red-500";
+                progressWidth = "100%";
+                progressBar.className = "h-2 rounded-full transition-all duration-500 bg-red-500";
+                advice = "您的體重已進入肥胖區間，這可能會增加心血管疾病風險。建議諮詢醫師或營養師制定專業的減重與運動計畫。";
+            }
+
+            bmiStatusDisplay.innerText = status;
+            bmiStatusDisplay.className = `text-lg font-bold mb-4 ${colorClass}`;
+            progressBar.style.width = progressWidth;
+            adviceText.innerText = advice;
+
+            // 平滑滾動至結果
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
